@@ -1,0 +1,35 @@
+{
+  "name": "grunt-appc-utility",
+  "version": "1.0.0",
+  "description": "A Grunt utility plugin that contains commonly used methods and other Grunt plugins.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/appcelerator/grunt-appc-utility.git"
+  },
+  "keywords": [
+    "grunt",
+    "appcelerator",
+    "utility"
+  ],
+  "author": "Wilson Luu",
+  "license": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/appcelerator/grunt-appc-utility/blob/master/LICENSE"
+    }
+  ],
+  "bugs": {
+    "url": "https://github.com/appcelerator/grunt-appc-utility/issues"
+  },
+  "homepage": "https://github.com/appcelerator/grunt-appc-utility#readme",
+  "devDependencies": {
+    "grunt": "^1.0.1"
+  },
+  "engines": {
+    "node": ">= 4.0.0"
+  },
+  "dependencies": {
+    "grunt-appc-istanbul": "^1.0.0",
+    "grunt-appc-js": "^1.0.23"
+  }
+}
