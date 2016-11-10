@@ -1,44 +1,50 @@
 'use strict';
 
-const child_process = require('child_process');
+const exec = require('child_process').exec;
 
 module.exports = function (grunt) {
-    grunt.registerTask('unpublish', 'Unpublished old versions', function () {
-        var REGEXP_VERSIONS = /versions: ((?:(?:, )?[0-9]+\.[0-9]+\.[0-9]+)+)\..+currently: ([0-9]+\.[0-9]+\.[0-9]+)/;
-        var done = this.async();
+    grunt.registerTask('unpublish', 'Unpublish all Arrow versions except for last deployed version.', function () {
+        const done = this.async();
 
-        child_process.exec('appc acs publish --list_versions', function (error, stdout, stderr) {
-
-            if (error !== null) {
+        exec('appc acs publish --list_versions', function (error, stdout, stderr) {
+            if (error) {
                 return grunt.fail.fatal(error);
             }
 
-            var matches = stdout.match(REGEXP_VERSIONS);
+            const
+                REGEXP_VERSIONS = /versions: ((?:(?:, )?[0-9]+\.[0-9]+\.[0-9]+)+)\..+currently: ([0-9]+\.[0-9]+\.[0-9]+)/,
+                matches = stdout.match(REGEXP_VERSIONS);
 
             if (matches === null) {
                 return done();
             }
 
-            var all = matches[1].split(', ');
-            var deployed = matches[2];
+            const
+                all = matches[1].split(', '),
+                deployed = matches[2];
 
             if (all.length === 1) {
                 return done();
             }
 
-            async.each(all, function (version, callback) {
-
-                if (version === deployed) {
-                    return callback();
+            let p = Promise.resolve();
+            all.forEach(function (version) {
+                if (version !== deployed) {
+                    p = p.then(function () {
+                        return new Promise(function (resolve) {
+                            grunt.log.write(`Unpublishing: ${version}`);
+                            exec(`appc acs unpublish --ver ${version}`, resolve);
+                        });
+                    });
                 }
-
-                grunt.log.write('Unpublishing: ' + version);
-                child_process.exec('appc acs unpublish --ver ' + version, callback);
-
-            }, done);
+            });
+            p.then(function () {
+                done();
+            });
         });
     });
 
+/*
     grunt.registerTask('ssl', function () {
         function concat(callback, outfn) {
             var files = Array.prototype.slice.call(arguments,2),
@@ -70,4 +76,5 @@ module.exports = function (grunt) {
             );
         }, done);
     });
+*/
 };
