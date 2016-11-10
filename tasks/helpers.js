@@ -15,21 +15,23 @@ module.exports = function (grunt) {
                 REGEXP_VERSIONS = /versions: ((?:(?:, )?[0-9]+\.[0-9]+\.[0-9]+)+)\..+currently: ([0-9]+\.[0-9]+\.[0-9]+)/,
                 matches = stdout.match(REGEXP_VERSIONS);
 
-            if (matches === null) {
+            if (!matches) {
                 return done();
             }
 
             const
+                // --list_versions should print out the deployed versions in ascending order
                 all = matches[1].split(', '),
-                deployed = matches[2];
+                lastDeployed = matches[2];
 
+            // if only one deployed version found, do nothing
             if (all.length === 1) {
                 return done();
             }
 
             let p = Promise.resolve();
             all.forEach(function (version) {
-                if (version !== deployed) {
+                if (version !== lastDeployed) {
                     p = p.then(function () {
                         return new Promise(function (resolve) {
                             grunt.log.write(`Unpublishing: ${version}`);
