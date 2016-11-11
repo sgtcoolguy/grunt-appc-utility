@@ -7,8 +7,9 @@ module.exports = function (grunt) {
         const done = this.async();
 
         exec('appc acs publish --list_versions', function (error, stdout, stderr) {
-            if (error) {
-                return grunt.fail.fatal(error);
+            if (error || stderr) {
+                // grunt will immediately abort
+                grunt.fail.fatal(error || stderr);
             }
 
             const
@@ -46,37 +47,31 @@ module.exports = function (grunt) {
         });
     });
 
-/*
-    grunt.registerTask('ssl', function () {
-        function concat(callback, outfn) {
-            var files = Array.prototype.slice.call(arguments,2),
-                buffer;
-            async.eachSeries(files, function(fn,cb){
-                if (!fs.existsSync(fn)) {
-                    return cb("Can't find file "+fn);
-                }
-                fs.readFile(fn, function(err,buf){
-                    if (err) { return cb(err); }
-                    buffer = !buffer ? buf : Buffer.concat([buffer,buf]);
-                    buffer = Buffer.concat([buffer,new Buffer('\n')]);
-                    cb();
-                });
-            },function(err){
-                if (err) { return callback(err); }
-                fs.writeFile(outfn, buffer, callback);
-            });
-        }
+    // in case anyone wants a quick session on ssl and encryption: http://how2ssl.com/articles/working_with_pem_files/
+    grunt.registerMultiTask('ssl', 'Generate a .pem file using the specified certificates and/or key files.', function () {
+        this.files.forEach(function (fileObj) {
+            // this will (hopefully) ensure that the sepecified destination path contains .pem extension
+            if (!/\.pem$/.test(fileObj.dest)) {
+                // grunt will immediately abort
+                grunt.fail.fatal(`'${fileObj.dest}' does not contain a '.pem' extension.`);
+            }
 
-        var done = this.async(),
-            ssldir = path.join(__dirname, 'conf');
-        async.each(['entitlements-preprod.cloud.appctest.com', 'entitlements.appcelerator.com'], function (name, cb) {
-            concat(cb,
-                path.join(__dirname, name + '.pem'),
-                path.join(ssldir, name + '.crt'),
-                path.join(ssldir, 'gd_intermediate.crt'),
-                path.join(ssldir, name + '.key')
-            );
-        }, done);
+            /*
+                the order of certificates/keys that are contained in the .pem file matters:
+                    http://serverfault.com/questions/476576/how-to-combine-various-certificates-into-single-pem
+                    https://www.digicert.com/ssl-support/pem-ssl-creation.htm
+
+                the order should be decided by the user
+            */
+            let pemContent = '';
+            fileObj.src.forEach(function (filePath) {
+                if (!grunt.file.exists(filePath)) {
+                    // grunt will immediately abort
+                    grunt.fail.fatal(`'${filePath}' does not exist.`);
+                }
+                pemContent += `${grunt.file.read(filePath)}\n`;
+            });
+            grunt.file.write(fileObj.dest, pemContent);
+        });
     });
-*/
 };
