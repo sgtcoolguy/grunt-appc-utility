@@ -5,7 +5,6 @@ const exec = require('child_process').exec;
 module.exports = function (grunt) {
     grunt.registerTask('unpublish', 'Unpublish all Arrow versions except for last deployed version.', function () {
         const done = this.async();
-
         exec('appc acs publish --list_versions', function (error, stdout, stderr) {
             if (error || stderr) {
                 // grunt will immediately abort
