@@ -24,7 +24,7 @@ Other Grunt plugins exposed in this utility:
 * [grunt-appc-istanbul](https://github.com/appcelerator/grunt-appc-istanbul)
 
 ### API
-#### unpublish
+#### appc_unpublish_all
 
 Since there is a max amount of times you can publish your Arrow app, this task will indiscriminately unpublish all of your Arrow versions **except** for the last deployed version.
 
@@ -35,12 +35,12 @@ module.exports = function (grunt) {
     ...
 
     // NOTE: no configuration is needed in grunt.initConfig for this task
-    grunt.registerTask('make_room', ['unpublish']);
+    grunt.registerTask('make_room', ['appc_unpublish_all']);
 };
 ```
 ---
 
-#### ssl
+#### appc_ssl
 
 Generate a .pem file using the specified certificates and/or key files.
 
@@ -51,7 +51,7 @@ module.exports = function (grunt) {
     ...
 
     grunt.initConfig({
-        ssl: {
+        appc_ssl: {
             foo: {
                 src: [
                     'conf/software.appcelerator.com.crt',
@@ -65,7 +65,7 @@ module.exports = function (grunt) {
 
     ...
 
-    grunt.registerTask('make_pem', ['ssl']);
+    grunt.registerTask('make_pem', ['appc_ssl']);
 };
 ```
 

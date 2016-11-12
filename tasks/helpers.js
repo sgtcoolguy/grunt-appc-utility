@@ -3,7 +3,7 @@
 const exec = require('child_process').exec;
 
 module.exports = function (grunt) {
-    grunt.registerTask('unpublish', 'Unpublish all Arrow versions except for last deployed version.', function () {
+    grunt.registerTask('appc_unpublish_all', 'Unpublish all Arrow versions except for last deployed version.', function () {
         const done = this.async();
         exec('appc acs publish --list_versions', function (error, stdout, stderr) {
             if (error || stderr) {
@@ -47,7 +47,7 @@ module.exports = function (grunt) {
     });
 
     // in case anyone wants a quick session on ssl and encryption: http://how2ssl.com/articles/working_with_pem_files/
-    grunt.registerMultiTask('ssl', 'Generate a .pem file using the specified certificates and/or key files.', function () {
+    grunt.registerMultiTask('appc_ssl', 'Generate a .pem file using the specified certificates and/or key files.', function () {
         this.files.forEach(function (fileObj) {
             // this will (hopefully) ensure that the sepecified destination path contains .pem extension
             if (!/\.pem$/.test(fileObj.dest)) {
