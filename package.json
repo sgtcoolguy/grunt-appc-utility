@@ -24,7 +24,8 @@
     "tasks/"
   ],
   "devDependencies": {
-    "grunt": "^1.0.1"
+    "grunt": "^1.0.1",
+    "grunt-appc-istanbul": "^1.0.5"
   },
   "dependencies": {
     "grunt-appc-js": "^1.0.23",
