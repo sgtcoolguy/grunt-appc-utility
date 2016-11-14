@@ -203,7 +203,7 @@ module.exports = function (grunt) {
                     "$config": true
                 }           
             },
-            src: ['paths', 'to', 'js', 'files'],
+            src: ['paths', 'to', 'js', 'files']
         }
     });
 

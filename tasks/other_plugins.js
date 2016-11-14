@@ -34,7 +34,7 @@ module.exports = function (grunt) {
     const
         APPC_JS_TASK = 'appcJs',
         THIS_JS_TASK = 'appc_js';
-    grunt.registerMultiTask(THIS_JS_TASK, 'Linting and style checks for Appcelerator JavaScript', function () {
+    grunt.registerMultiTask(THIS_JS_TASK, 'Lint, style, and library vulnerability checks for Appcelerator JavaScript', function () {
         const configObj = grunt.config.get(THIS_JS_TASK);
 
         // no need to use _addDefaults() i.e. don't need to customize default properties here
