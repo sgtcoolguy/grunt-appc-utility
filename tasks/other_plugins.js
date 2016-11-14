@@ -1,7 +1,10 @@
 'use strict';
 
-// for the below tasks, it seems like this is the only way to run a grunt plugin within a grunt plugin
 module.exports = function (grunt) {
+    /*
+        for the below tasks, it seems like this is the only way to run a grunt plugin within a grunt plugin.
+        NOTE: if you run 'grunt --help', the help description from these plugins will also appear.
+    */
     require('grunt-appc-istanbul')(grunt);
     require('grunt-appc-js/tasks/appc_js.js')(grunt);
 
