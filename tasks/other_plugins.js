@@ -1,17 +1,10 @@
 'use strict';
 
 module.exports = function (grunt) {
-    /*
-        for the below tasks, it seems like this is the only way to run a grunt plugin within a grunt plugin.
-        NOTE: if you run 'grunt --help', the help description from these plugins will also appear.
-    */
-    require('grunt-appc-istanbul')(grunt);
-    require('grunt-appc-js/tasks/appc_js.js')(grunt);
-
     const
         APPC_ISTAN_RUN_TASK = 'AppcIstanbul_setupAndRun',
         THIS_ISTAN_RUN_TASK = 'appc_istanbul_run';
-    grunt.registerMultiTask(THIS_ISTAN_RUN_TASK, `grunt-appc-istanbul's '${APPC_ISTAN_RUN_TASK}' task.`, function () {
+    grunt.registerMultiTask(THIS_ISTAN_RUN_TASK, 'Copy, instrument, and run the Arrow project.', function () {
         const configObj = grunt.config.get(THIS_ISTAN_RUN_TASK);
 
         /*
@@ -20,14 +13,13 @@ module.exports = function (grunt) {
         */
         _addDefaults(configObj, {'waitForLog': 'server started on port 8080'});
 
-        grunt.config.set(APPC_ISTAN_RUN_TASK, configObj);
-        grunt.task.run(APPC_ISTAN_RUN_TASK);
+        _runPlugin(grunt, 'grunt-appc-istanbul', APPC_ISTAN_RUN_TASK, configObj);
     });
 
     const
         APPC_ISTAN_REPORT_TASK = 'AppcIstanbul_makeReport',
         THIS_ISTAN_REPORT_TASK = 'appc_istanbul_report';
-    grunt.registerMultiTask(THIS_ISTAN_REPORT_TASK, `grunt-appc-istanbul's '${APPC_ISTAN_REPORT_TASK}' task.`, function () {
+    grunt.registerMultiTask(THIS_ISTAN_REPORT_TASK, 'Create code coverage report and write into "dest".', function () {
         const configObj = grunt.config.get(THIS_ISTAN_REPORT_TASK);
 
         /*
@@ -36,8 +28,17 @@ module.exports = function (grunt) {
         */
         _addDefaults(configObj, {'options': {cobertura: true}});
 
-        grunt.config.set(APPC_ISTAN_REPORT_TASK, configObj);
-        grunt.task.run(APPC_ISTAN_REPORT_TASK);
+        _runPlugin(grunt, 'grunt-appc-istanbul', APPC_ISTAN_REPORT_TASK, configObj);
+    });
+
+    const
+        APPC_JS_TASK = 'appcJs',
+        THIS_JS_TASK = 'appc_js';
+    grunt.registerMultiTask(THIS_JS_TASK, 'Linting and style checks for Appcelerator JavaScript', function () {
+        const configObj = grunt.config.get(THIS_JS_TASK);
+
+        // no need to use _addDefaults() i.e. don't need to customize default properties here
+        _runPlugin(grunt, 'grunt-appc-js/tasks/appc_js.js', APPC_JS_TASK, configObj);
     });
 };
 
@@ -61,4 +62,20 @@ function _addDefaults(configObj, defaultsObj) {
             }
         }
     }
+}
+
+/*
+    an internal method that runs a grunt task from the specified grunt npmModule.
+    it seems like this is the only way to run a grunt plugin within a grunt plugin; extending an existing task.
+
+    @param {Object} grunt - grunt object from the wrapper
+    @param {String} npmModule - grunt npm node module
+    @param {String} task - a task, from the grunt npmModule, to run
+    @param {Object} config - the task's configuration object
+*/
+function _runPlugin(grunt, npmModule, task, config) {
+    // by calling this require here, this prevents the help message (if any) and task name from appearing when running 'grunt --help'
+    require(npmModule)(grunt);
+    grunt.config.set(task, config);
+    grunt.task.run(task);
 }

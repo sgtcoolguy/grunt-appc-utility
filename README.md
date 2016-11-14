@@ -131,6 +131,7 @@ The string values in the array should be JS files in your Arrow project that you
 
 ###### waitForLog
 Type: `String`
+
 Default value: `server started on port 8080`
 
 To ensure that your Arrow project is up and running, the plugin will wait for the specified the log output from `appc run`. Once the log is found, the plugin will move onto the next task.
@@ -160,7 +161,9 @@ module.exports = function (grunt) {
             }
         },
         appc_istanbul_report: {
-            dest: 'coverage/'
+            foo: {
+                dest: 'coverage/'
+            }
         }
     });
 
@@ -176,3 +179,36 @@ module.exports = function (grunt) {
 Type: `String`
 
 The value should be a directory and you do not need to create the dest directory beforehand. It will be created if one does not exist.
+
+---
+
+#### appc_js
+
+Linting and style checks for Appcelerator JavaScript. Also, detects the use of any JS libraries that contain security vulnerabilities; see [here](https://github.com/appcelerator-modules/grunt-appc-js/blob/master/tasks/appc_js.js#L26-L31).
+
+**Note:** This is an alias task for `appcJs` from grunt-appc-js. The only difference is the task name; changed the task name to be consistent with the other alias tasks. If you want to see the types of options available for `appc_js`, see [grunt-appc-js](https://github.com/appcelerator-modules/grunt-appc-js).
+
+###### Example
+```js
+module.exports = function (grunt) {
+
+    ...
+
+    grunt.initConfig({
+        appc_js: {
+            options: {
+                force: false,
+                fix: false,
+                globals: {
+                    "$config": true
+                }           
+            },
+            src: ['paths', 'to', 'js', 'files'],
+        }
+    });
+
+    ...
+
+    grunt.registerTask('check_usage', ['appc_js']);
+};
+```
