@@ -3,7 +3,8 @@
 // NOTE: this grunt file is only used for testing
 
 module.exports = function (grunt) {
-    grunt.loadTasks('../tasks');
+    // NOTE: this file will be placed in an arrow project with the tasks folder
+    grunt.loadTasks('tasks');
 
     grunt.initConfig({
         appc_ssl: {

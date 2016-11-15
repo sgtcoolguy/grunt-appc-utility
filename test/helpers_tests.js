@@ -9,14 +9,71 @@ const
     path = require('path'),
     assert = require('assert');
 
-// 'npm test' makes cwd at the root level of the project; switch to this test folder
-before(function () {
+// dummy arrow app
+const DUMMY = 'dummy';
+
+before('setup', function (done) {
+    // creating projects could take a long time; disable timeout
+    this.timeout(0);
+
+    // 'npm test' makes cwd at the root level of the project; switch to this test directory
     process.chdir('test');
+
+    // create an arrow project to simulate and simulate usage of this plugin
+    const
+        args = [
+            'new',
+            '-t', 'arrow',
+            '--name', DUMMY,
+        ],
+        appcCmd = spawn('appc', args);
+    appcCmd.stdout.on('data', function (data) {
+        console.log(data.toString());
+    });
+    appcCmd.stderr.on('data', function (data) {
+        console.log(data.toString());
+    });
+    appcCmd.on('close', function (code) {
+        // now, switch to the dummy arrow app
+        process.chdir(DUMMY);
+
+        // symlink files to this dummy arrow project
+        fs.symlinkSync('../../tasks', 'tasks');
+        fs.symlinkSync('../fake', 'fake');
+        fs.symlinkSync('../Gruntfile.js', 'Gruntfile.js');
+
+        done();
+    });
+});
+
+after('cleanup', function (done) {
+    console.log('--- cleanup ---');
+
+    // get out of the dummy app
+    process.chdir('..');
+
+    // it takes a while to delete an arrow project from platform; extend timeout to 3 seconds
+    this.timeout(1000 * 3);
+
+    // delete the dummy app from 360 platform
+    const appcRmCmd = spawn('appc', ['cloud', 'remove', DUMMY]);
+    appcRmCmd.stdout.on('data', function (output) {
+        console.log(output.toString());
+    });
+    appcRmCmd.stderr.on('data', function (output) {
+        console.log(output.toString());
+    });
+    appcRmCmd.on('close', function () {
+        // delete the dummy app from your local machine
+        rimraf(DUMMY, done);
+    });
 });
 
 describe('appc_ssl', function () {
-    // from appc_ssl:good target
-    const OUTPUT_DIR = 'build';
+    // from Gruntfile.js
+    const
+        OUTPUT_DIR = 'build',
+        SRC_DIR = 'fake';
 
     beforeEach(function (done) {
         rimraf(OUTPUT_DIR, done);
@@ -26,9 +83,9 @@ describe('appc_ssl', function () {
         // from appc_ssl:good target
         const
             PEM_FILE = path.join(OUTPUT_DIR, 'appc.com.pem'),
-            CRT_FILE = path.join('fake', 'appc.com.crt'),
-            CRT_FILE_2 = path.join('fake', 'appc.com.other.crt'),
-            KEY_FILE = path.join('fake', 'appc.com.key');
+            CRT_FILE = path.join(SRC_DIR, 'appc.com.crt'),
+            CRT_FILE_2 = path.join(SRC_DIR, 'appc.com.other.crt'),
+            KEY_FILE = path.join(SRC_DIR, 'appc.com.key');
 
         const gruntCmd = spawn('grunt', ['appc_ssl:good']);
         gruntCmd.stdout.on('data', function (data) {
@@ -100,7 +157,7 @@ describe('appc_ssl', function () {
 
     it('should fail if source files are missing', function (done) {
         // from appc_ssl:missing target
-        const FILE_DOESNT_EXIST = path.join('fake', 'fingers.key');
+        const FILE_DOESNT_EXIST = path.join(SRC_DIR, 'fingers.key');
 
         let errOutput = '';
 
