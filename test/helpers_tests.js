@@ -15,15 +15,15 @@ before(function () {
 });
 
 describe('appc_ssl', function () {
-    // this is determined by the user in the Gruntfile.js
+    // from appc_ssl:good target
     const OUTPUT_DIR = 'build';
 
-    before(function (done) {
+    beforeEach(function (done) {
         rimraf(OUTPUT_DIR, done);
     });
 
     it('should generate a .pem file with all valid keys and certs', function (done) {
-        // and, these are determined by the user in the Gruntfile.js
+        // from appc_ssl:good target
         const
             PEM_FILE = path.join(OUTPUT_DIR, 'appc.com.pem'),
             CRT_FILE = path.join('fake', 'appc.com.crt'),
@@ -39,7 +39,7 @@ describe('appc_ssl', function () {
             // uncomment for debugging
             // console.log(data.toString());
         });
-        gruntCmd.on('close', function (data) {
+        gruntCmd.on('close', function (code) {
             let pemSize = 0;
             assert.doesNotThrow(function () {
                 pemSize = fs.statSync(PEM_FILE).size;
@@ -56,6 +56,75 @@ describe('appc_ssl', function () {
             contentSize += TOTAL_NEW_LINES;
 
             assert.strictEqual(pemSize, contentSize, `${PEM_FILE} is missing some content.`);
+
+            done();
+        });
+    });
+
+    it('should fail if .pem extension is not specified', function (done) {
+        // from appc_ssl:nopem target
+        const BAD_PEM = path.join(OUTPUT_DIR, 'appc.com');
+
+        let errOutput = '';
+
+        const gruntCmd = spawn('grunt', ['appc_ssl:nopem']);
+        gruntCmd.stdout.on('data', function (data) {
+            // capture only 'Fatal error' from output
+            if (/^Fatal error/.test(data)) {
+                errOutput += data;
+            }
+        });
+        gruntCmd.stderr.on('data', function (data) {
+            // uncomment for debugging
+            // console.log(data.toString());
+        });
+        gruntCmd.on('close', function (code) {
+            // check if there is an error message, indicating .pem extension is needed
+            // NOTE: because errOutput contains an invisible character from stdout, need to use regular expression instead of strict equality for validation
+            const
+                correctErrText = `Fatal error: '${BAD_PEM}' does not contain a '.pem' extension.`,
+                isTextGood = new RegExp(correctErrText).test(errOutput);
+            assert.ok(isTextGood, 'Returned error message is not correct.');
+
+            // check exit code is 1 i.e. grunt.fail.fatal should've been called
+            assert.ok(code, 'Exit code is not 1.');
+
+            // check no pem file was created
+            assert.throws(function () {
+                fs.statSync(PEM_FILE);
+            }, null, '.pem file should not be created.');
+
+            done();
+        });
+    });
+
+    it('should fail if source files are missing', function (done) {
+        // from appc_ssl:missing target
+        const FILE_DOESNT_EXIST = path.join('fake', 'fingers.key');
+
+        let errOutput = '';
+
+        const gruntCmd = spawn('grunt', ['appc_ssl:missing']);
+        gruntCmd.stdout.on('data', function (data) {
+            // capture only 'Fatal error' from output
+            if (/^Fatal error/.test(data)) {
+                errOutput += data;
+            }
+        });
+        gruntCmd.stderr.on('data', function (data) {
+            // uncomment for debugging
+            // console.log(data.toString());
+        });
+        gruntCmd.on('close', function (code) {
+            // check if there is an error message, indicating the specified source file doesn't exist
+            // NOTE: because errOutput contains an invisible character from stdout, need to use regular expression instead of strict equality for validation
+            const
+                correctErrText = `Fatal error: '${FILE_DOESNT_EXIST}' does not exist.`,
+                isTextGood = new RegExp(correctErrText).test(errOutput);
+            assert.ok(isTextGood, 'Returned error message is not correct.');
+
+            // check exit code is 1 i.e. grunt.fail.fatal should've been called
+            assert.ok(code, 'Exit code is not 1.');
 
             done();
         });
