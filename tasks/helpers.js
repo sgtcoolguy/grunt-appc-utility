@@ -48,7 +48,20 @@ module.exports = function (grunt) {
 
     // in case anyone wants a quick session on ssl and encryption: http://how2ssl.com/articles/working_with_pem_files/
     grunt.registerMultiTask('appc_ssl', 'Generate a .pem file using the specified certificates and/or key files.', function () {
-        this.files.forEach(function (fileObj) {
+        const that = this;
+
+        /*
+            if a file does not exist, grunt's file mechanism will not show it in this.files.
+            will need to check via this.data.
+        */
+        that.data.src.forEach(function (filePath) {
+            if (!grunt.file.exists(filePath)) {
+                // grunt will immediately abort
+                grunt.fail.fatal(`'${filePath}' does not exist.`);
+            }
+        });
+
+        that.files.forEach(function (fileObj) {
             // this will (hopefully) ensure that the sepecified destination path contains .pem extension
             if (!/\.pem$/.test(fileObj.dest)) {
                 // grunt will immediately abort
@@ -64,10 +77,6 @@ module.exports = function (grunt) {
             */
             let pemContent = '';
             fileObj.src.forEach(function (filePath) {
-                if (!grunt.file.exists(filePath)) {
-                    // grunt will immediately abort
-                    grunt.fail.fatal(`'${filePath}' does not exist.`);
-                }
                 pemContent += `${grunt.file.read(filePath)}\n`;
             });
             grunt.file.write(fileObj.dest, pemContent);
