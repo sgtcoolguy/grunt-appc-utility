@@ -1,4 +1,4 @@
-# grunt-appc-utility WIP
+# grunt-appc-utility
 > A Grunt utility plugin (for Arrow apps) that contains commonly used methods and exposes other Grunt plugins.
 
 ## Getting Started
