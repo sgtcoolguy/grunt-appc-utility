@@ -189,26 +189,53 @@ describe('appc_ssl', function () {
 });
 
 describe('appc_unpublish_all', function () {
-    // before(function () {
-    //     // 'npm test' makes cwd at the root level of the project; switch to this test folder
-    //     process.chdir('test');
-    // });
+    // publishing an arrow app takes forever; disabling timeout
+    this.timeout(0);
 
-    it.skip('something something', function (done) {
-        const
-            args = [
-                '--help'
-            ],
-            gruntCmd = spawn('grunt', args);
+    before(function (done) {
+        // since we're still in the arrow app, publish it
+        publishApp(done);
+    });
 
+    it('should not be able to unpublish first version', function (done) {
+        let output = '';
+
+        const gruntCmd = spawn('grunt', ['appc_unpublish_all']);
         gruntCmd.stdout.on('data', function (data) {
-            console.log(data.toString());
+            output += data;
         });
         gruntCmd.stderr.on('data', function (data) {
-            console.log(data.toString());
+            // uncomment for debugging
+            // console.log(data.toString());
         });
-        gruntCmd.on('close', function (data) {
+        gruntCmd.on('close', function (code) {
+            const logExist = /Only one published Arrow version; will not unpublish\./g.test(output);
+            assert.ok(logExist, 'Retruned message does not exist');
             done();
         });
     });
+
+    /*
+        TODO: actually implement this test case (just, so tired)
+        1. since this dummy app is already published at this point, pubslih again
+        2. repeatedly call 'appc cloud list dummy' until second status changes to running
+        3. call 'grunt appc_unpublish_all'
+        4. check with 'appc cloud list dummy'
+    */
+    it('should be able to unpublish multiple versions', function () {
+        console.log('DO THIS PART MANUALLY vvv');
+    });
+
+    function publishApp(done) {
+        const publishCmd = spawn('appc', ['publish']);
+        publishCmd.stdout.on('data', function (data) {
+            console.log(data.toString());
+        });
+        publishCmd.stderr.on('data', function (data) {
+            console.log(data.toString());
+        });
+        publishCmd.on('close', function (code) {
+            done();
+        });
+    }
 });

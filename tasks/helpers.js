@@ -15,7 +15,14 @@ module.exports = function (grunt) {
                 REGEXP_VERSIONS = /versions: ((?:(?:, )?[0-9]+\.[0-9]+\.[0-9]+)+)\..+currently: ([0-9]+\.[0-9]+\.[0-9]+)/,
                 matches = stdout.match(REGEXP_VERSIONS);
 
+            /*
+                if there is only one published arrow version, the message looks like this:
+                Published version: 1.0.1. The version deployed currently: 1.0.1.
+
+                'version' in this case is singular.
+            */
             if (!matches) {
+                grunt.log.write('Only one published Arrow version; will not unpublish.');
                 return done();
             }
 
@@ -23,11 +30,6 @@ module.exports = function (grunt) {
                 // --list_versions should print out the deployed versions in ascending order
                 all = matches[1].split(', '),
                 lastDeployed = matches[2];
-
-            // if only one deployed version found, do nothing
-            if (all.length === 1) {
-                return done();
-            }
 
             let p = Promise.resolve();
             all.forEach(function (version) {
