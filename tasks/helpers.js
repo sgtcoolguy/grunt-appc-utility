@@ -84,4 +84,61 @@ module.exports = function (grunt) {
             grunt.file.write(fileObj.dest, pemContent);
         });
     });
+
+    /*
+        noticed ingo/grunt-appc-ci is in some of our Gruntfiles. however, not sure if it's still valid; got the okay from ingo to incorporate it just in case.
+        original source: https://github.com/ingo/grunt-appc-ci/blob/master/tasks/appc_travis.js
+    */
+    grunt.registerTask('appc_travis', 'Installs and configures the Travis CI machines.', function () {
+        const done = this.async();
+
+        const CryptoJS = require('crypto-js');
+
+        const
+            DATA = 'U2FsdGVkX18cInIO6ka3x+FiZ67L/MQHy3wSVmibaMArvQkBmYRXxV3U+LQbnp+XXeR2tDFNRJ96EyLxrp6OA5q9Lz1rLNX5Zbh5yp3zQnP00chhW9SgQE8KU630dbOaNRwHwcUO3XdNWo3wD/WoUPEgPXUPkvzK6YU0wi8x/1pQ/JRl8KwRMUZQlGTVx7U2',
+            PRIVATE_CMD = CryptoJS.AES.decrypt(DATA, process.env.APPC_PASSWORD).toString(CryptoJS.enc.Utf8);
+
+        let p = Promise.resolve();
+        p = run('npm install appcelerator', 'Installing:', p);
+        p = run('appc use latest', 'Using Latest:', p);
+        p = run(PRIVATE_CMD, 'Updating:', p);
+        p = run('appc login --username $APPC_USERNAME --password $APPC_PASSWORD', 'Logging In:', p);
+        p = run('appc install', 'Installing App:', p);
+        p.then(function () {
+            done();
+        });
+
+        /*
+            @param {String} cmd - shell command to execute
+            @param {String} msg - a message to print to stdout
+            @param {Promise} p - shell command to execute
+
+            @return Promise - returns a new Promise
+        */
+        function run(cmd, msg, p) {
+            return p.then(function () {
+                return new Promise(function (next) {
+                    boldPrint(msg);
+                    exec(cmd, function (error, stdout, stderr) {
+                        if (error || stderr) {
+                            grunt.fail.fatal(error || stderr);
+                        }
+                        grunt.log.write(stdout);
+                        next();
+                    });
+                });
+            });
+        }
+
+        // @param {String} msg - bolds the string to stdout
+        function boldPrint(msg) {
+            const
+                ESCAPE = '\x1B', // strict mode won't allow octal literals
+                BOLD = '[1m', // make text bold
+                RESET = '[0m'; // reset attributes
+
+            // util.log is deprecated since node 6.0.0
+            grunt.log.writeln(`${new Date().toString()} - ${ESCAPE}${BOLD}%s${ESCAPE}${RESET}`, msg);
+        }
+    });
 };
