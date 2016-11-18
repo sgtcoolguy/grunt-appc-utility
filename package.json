@@ -1,6 +1,6 @@
 {
   "name": "grunt-appc-utility",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A Grunt utility plugin that contains commonly used methods and other Grunt plugins.",
   "repository": {
     "type": "git",
