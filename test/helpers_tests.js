@@ -37,12 +37,10 @@ before('setup', function (done) {
 		// now, switch to the dummy arrow app
 		process.chdir(DUMMY);
 
-		console.log(fs.readdirSync('.'));
-
 		// symlink files to this dummy arrow project
 		fs.symlinkSync('../../tasks', 'tasks');
 		fs.symlinkSync('../fake', 'fake');
-		fs.symlinkSync('../Gruntfile.js', 'Gruntfile.js');
+		// fs.symlinkSync('../Gruntfile.js', 'Gruntfile.js');
 
 		done();
 	});
