@@ -24,11 +24,12 @@
     "tasks/"
   ],
   "scripts": {
-    "test": "mocha test/*_tests.js"
+    "test": "JUNIT_REPORT_PATH=junit_report.xml mocha --colors --reporter mocha-jenkins-reporter test/*_tests.js"
   },
   "devDependencies": {
     "grunt": "^1.0.1",
     "mocha": "^3.1.2",
+    "mocha-jenkins-reporter": "0.3.7",
     "rimraf": "^2.5.4"
   },
   "dependencies": {
