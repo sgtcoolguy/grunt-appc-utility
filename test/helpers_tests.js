@@ -52,7 +52,7 @@ after('cleanup', function (done) {
 	// get out of the dummy app
 	process.chdir('..');
 
-	// it takes a a long time to delete an arrow project from platform from jenkins ...
+	// it takes a a long time to delete an arrow project from platform from jenkins; disable timeout
 	this.timeout(0);
 
 	new Promise(resolve => {
@@ -85,6 +85,9 @@ after('cleanup', function (done) {
 });
 
 describe('appc_ssl', function () {
+	// it takes a long time to validate anything on preprod plus jenkins; disable timeout
+	this.timeout(0);
+
 	// from Gruntfile.js
 	const
 		OUTPUT_DIR = 'build',
