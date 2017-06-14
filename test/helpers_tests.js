@@ -52,8 +52,8 @@ after('cleanup', function (done) {
 	// get out of the dummy app
 	process.chdir('..');
 
-	// it takes a while to delete an arrow project from platform; extend timeout to 3 seconds
-	this.timeout(1000 * 3);
+	// it takes a a long time to delete an arrow project from platform from jenkins ...
+	this.timeout(0);
 
 	new Promise(resolve => {
 		// when running on jenkins, it's possible that there may be apps with the name DUMMY in a different org.
