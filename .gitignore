@@ -5,3 +5,4 @@ node_modules
 .DS_Store
 test/build
 test/dummy
+junit_report.xml
