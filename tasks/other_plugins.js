@@ -11,7 +11,7 @@ module.exports = function (grunt) {
 			'waitForLog' property will be optional to the user; if it's not specified, use 'server started on port 8080' log
 			by default, arrow apps will print that log after it finishes launching
 		*/
-		_addDefaults(configObj, {'waitForLog': 'server started on port 8080'});
+		_addDefaults(configObj, { 'waitForLog': 'server started on port 8080' });
 
 		_runPlugin(grunt, 'grunt-appc-istanbul', APPC_ISTAN_RUN_TASK, configObj);
 	});
@@ -26,7 +26,7 @@ module.exports = function (grunt) {
 			'options' property will be optional to the user; if it's not specified, use 'options': {cobertura: true}
 			this will coincide with the jenkins cobertura plugin
 		*/
-		_addDefaults(configObj, {'options': {cobertura: true}});
+		_addDefaults(configObj, { 'options': { cobertura: true } });
 
 		_runPlugin(grunt, 'grunt-appc-istanbul', APPC_ISTAN_REPORT_TASK, configObj);
 	});
@@ -75,7 +75,7 @@ function _addDefaults(configObj, defaultsObj) {
 */
 function _runPlugin(grunt, npmModule, task, config) {
 	// by calling this require here, this prevents the help message (if any) and task name from appearing when running 'grunt --help'
-	require(npmModule)(grunt);
+	require(npmModule)(grunt); // eslint-disable-line security/detect-non-literal-require
 	grunt.config.set(task, config);
 	grunt.task.run(task);
 }

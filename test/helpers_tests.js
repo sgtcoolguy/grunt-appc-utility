@@ -4,7 +4,7 @@
 
 const
 	rimraf = require('rimraf'),
-	spawn = require('child_process').spawn,
+	spawn = require('child_process').spawn, // eslint-disable-line security/detect-child-process
 	fs = require('fs'),
 	path = require('path'),
 	assert = require('assert');
@@ -33,7 +33,7 @@ before('setup', function (done) {
 	appcCmd.stderr.on('data', function (data) {
 		console.log(data.toString());
 	});
-	appcCmd.on('close', function (code) {
+	appcCmd.on('close', function () {
 		// now, switch to the dummy arrow app
 		process.chdir(DUMMY);
 
@@ -60,7 +60,7 @@ after('cleanup', function (done) {
 		// so, to delete this app, getting the current org id.
 		let out = '';
 
-		const whoami = spawn('appc', ['whoami', '-o', 'json']);
+		const whoami = spawn('appc', [ 'whoami', '-o', 'json' ]);
 		whoami.stdout.on('data', function (output) {
 			out += output.toString();
 		});
@@ -68,20 +68,20 @@ after('cleanup', function (done) {
 			resolve(JSON.parse(out).org_id);
 		});
 	})
-	.then(function (org_id) {
-		// delete the dummy app from 360 platform
-		const appcRmCmd = spawn('appc', ['cloud', 'remove', DUMMY, '--org', org_id]);
-		appcRmCmd.stdout.on('data', function (output) {
-			console.log(output.toString());
+		.then(function (org_id) {
+			// delete the dummy app from 360 platform
+			const appcRmCmd = spawn('appc', [ 'cloud', 'remove', DUMMY, '--org', org_id ]);
+			appcRmCmd.stdout.on('data', function (output) {
+				console.log(output.toString());
+			});
+			appcRmCmd.stderr.on('data', function (output) {
+				console.log(output.toString());
+			});
+			appcRmCmd.on('close', function () {
+				// delete the dummy app from your local machine
+				rimraf(DUMMY, done);
+			});
 		});
-		appcRmCmd.stderr.on('data', function (output) {
-			console.log(output.toString());
-		});
-		appcRmCmd.on('close', function () {
-			// delete the dummy app from your local machine
-			rimraf(DUMMY, done);
-		});
-	})
 });
 
 describe('appc_ssl', function () {
@@ -105,16 +105,16 @@ describe('appc_ssl', function () {
 			CRT_FILE_2 = path.join(SRC_DIR, 'appc.com.other.crt'),
 			KEY_FILE = path.join(SRC_DIR, 'appc.com.key');
 
-		const gruntCmd = spawn('grunt', ['appc_ssl:good']);
-		gruntCmd.stdout.on('data', function (data) {
-			// uncomment for debugging
-			// console.log(data.toString());
-		});
-		gruntCmd.stderr.on('data', function (data) {
-			// uncomment for debugging
-			// console.log(data.toString());
-		});
-		gruntCmd.on('close', function (code) {
+		const gruntCmd = spawn('grunt', [ 'appc_ssl:good' ]);
+		// gruntCmd.stdout.on('data', function (data) {
+		// 	uncomment for debugging
+		// 	console.log(data.toString());
+		// });
+		// gruntCmd.stderr.on('data', function (data) {
+		// 	uncomment for debugging
+		// 	console.log(data.toString());
+		// });
+		gruntCmd.on('close', function () {
 			let pemSize = 0;
 			assert.doesNotThrow(function () {
 				pemSize = fs.statSync(PEM_FILE).size;
@@ -122,7 +122,7 @@ describe('appc_ssl', function () {
 
 			let contentSize = 0;
 			const
-				srcFiles = [CRT_FILE, CRT_FILE_2, KEY_FILE],
+				srcFiles = [ CRT_FILE, CRT_FILE_2, KEY_FILE ],
 				TOTAL_NEW_LINES = srcFiles.length;
 			srcFiles.forEach(function (srcFile) {
 				contentSize += fs.statSync(srcFile).size;
@@ -142,23 +142,23 @@ describe('appc_ssl', function () {
 
 		let errOutput = '';
 
-		const gruntCmd = spawn('grunt', ['appc_ssl:nopem']);
+		const gruntCmd = spawn('grunt', [ 'appc_ssl:nopem' ]);
 		gruntCmd.stdout.on('data', function (data) {
 			// capture only 'Fatal error' from output
 			if (/^Fatal error/.test(data)) {
 				errOutput += data;
 			}
 		});
-		gruntCmd.stderr.on('data', function (data) {
-			// uncomment for debugging
-			// console.log(data.toString());
-		});
+		// gruntCmd.stderr.on('data', function (data) {
+		// 	uncomment for debugging
+		// 	console.log(data.toString());
+		// });
 		gruntCmd.on('close', function (code) {
 			// check if there is an error message, indicating .pem extension is needed
 			// NOTE: because errOutput contains an invisible character from stdout, need to use regular expression instead of strict equality for validation
 			const
 				correctErrText = `Fatal error: '${BAD_PEM}' does not contain a '.pem' extension.`,
-				isTextGood = new RegExp(correctErrText).test(errOutput);
+				isTextGood = new RegExp(correctErrText).test(errOutput); // eslint-disable-line security/detect-non-literal-regexp
 			assert.ok(isTextGood, 'Returned error message is not correct.');
 
 			// check exit code is 1 i.e. grunt.fail.fatal should've been called
@@ -166,7 +166,7 @@ describe('appc_ssl', function () {
 
 			// check no pem file was created
 			assert.throws(function () {
-				fs.statSync(PEM_FILE);
+				fs.statSync(BAD_PEM);
 			}, null, '.pem file should not be created.');
 
 			done();
@@ -179,23 +179,23 @@ describe('appc_ssl', function () {
 
 		let errOutput = '';
 
-		const gruntCmd = spawn('grunt', ['appc_ssl:missing']);
+		const gruntCmd = spawn('grunt', [ 'appc_ssl:missing' ]);
 		gruntCmd.stdout.on('data', function (data) {
 			// capture only 'Fatal error' from output
 			if (/^Fatal error/.test(data)) {
 				errOutput += data;
 			}
 		});
-		gruntCmd.stderr.on('data', function (data) {
-			// uncomment for debugging
-			// console.log(data.toString());
-		});
+		// gruntCmd.stderr.on('data', function (data) {
+		// 	uncomment for debugging
+		// 	console.log(data.toString());
+		// });
 		gruntCmd.on('close', function (code) {
 			// check if there is an error message, indicating the specified source file doesn't exist
 			// NOTE: because errOutput contains an invisible character from stdout, need to use regular expression instead of strict equality for validation
 			const
 				correctErrText = `Fatal error: '${FILE_DOESNT_EXIST}' does not exist.`,
-				isTextGood = new RegExp(correctErrText).test(errOutput);
+				isTextGood = new RegExp(correctErrText).test(errOutput); // eslint-disable-line security/detect-non-literal-regexp
 			assert.ok(isTextGood, 'Returned error message is not correct.');
 
 			// check exit code is 1 i.e. grunt.fail.fatal should've been called
@@ -207,7 +207,7 @@ describe('appc_ssl', function () {
 });
 
 // skipping these tests because preprod is too unreliable to run these tests
-describe.skip('appc_unpublish_all', function () {
+describe.skip('appc_unpublish_all', function () { // eslint-disable-line mocha/no-skipped-tests
 	// publishing an arrow app takes forever; disabling timeout
 	this.timeout(0);
 
@@ -219,15 +219,15 @@ describe.skip('appc_unpublish_all', function () {
 	it('should not be able to unpublish first version', function (done) {
 		let output = '';
 
-		const gruntCmd = spawn('grunt', ['appc_unpublish_all']);
+		const gruntCmd = spawn('grunt', [ 'appc_unpublish_all' ]);
 		gruntCmd.stdout.on('data', function (data) {
 			output += data;
 		});
-		gruntCmd.stderr.on('data', function (data) {
-			// uncomment for debugging
-			// console.log(data.toString());
-		});
-		gruntCmd.on('close', function (code) {
+		// gruntCmd.stderr.on('data', function (data) {
+		// 	uncomment for debugging
+		// 	console.log(data.toString());
+		// });
+		gruntCmd.on('close', function () {
 			const logExist = /Only one published Arrow version; will not unpublish\./g.test(output);
 			assert.ok(logExist, 'Retruned message does not exist');
 			done();
@@ -246,14 +246,14 @@ describe.skip('appc_unpublish_all', function () {
 	});
 
 	function publishApp(done) {
-		const publishCmd = spawn('appc', ['publish']);
+		const publishCmd = spawn('appc', [ 'publish' ]);
 		publishCmd.stdout.on('data', function (data) {
 			console.log(data.toString());
 		});
 		publishCmd.stderr.on('data', function (data) {
 			console.log(data.toString());
 		});
-		publishCmd.on('close', function (code) {
+		publishCmd.on('close', function () {
 			done();
 		});
 	}

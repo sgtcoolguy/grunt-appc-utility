@@ -11,10 +11,10 @@ timestamps {
       currentBuild.displayName = "#${packageVersion}-${currentBuild.number}"
     }
 
-    def isPR = env.BRANCH_NAME.startsWith('PR-')
+    def isMaster = env.BRANCH_NAME.equals('master')
     // By default, publish any builds not on a PR
-    def publish = !isPR
-    def tagGit = !isPR
+    def publish = isMaster
+    def tagGit = isMaster
 
     def appc = new AppcCLI(steps)
     appc.environment = 'preprod'
@@ -40,11 +40,11 @@ timestamps {
         }
 
         stage('Publish') {
-          if (tagGit) {
-            pushGitTag(name: packageVersion, message: "See ${env.BUILD_URL} for more information.", force: true)
-          }
           if (publish) {
             sh 'npm publish'
+          }
+          if (tagGit) {
+            pushGitTag(name: packageVersion, message: "See ${env.BUILD_URL} for more information.", force: true)
           }
         }
       } // ansiColor

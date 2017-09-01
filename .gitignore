@@ -6,3 +6,4 @@ node_modules
 test/build
 test/dummy
 junit_report.xml
+retirejs.output.json

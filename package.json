@@ -1,6 +1,6 @@
 {
   "name": "grunt-appc-utility",
-  "version": "1.1.2",
+  "version": "2.0.0",
   "description": "A Grunt utility plugin that contains commonly used methods and other Grunt plugins.",
   "repository": {
     "type": "git",
@@ -24,17 +24,19 @@
     "tasks/"
   ],
   "scripts": {
-    "test": "JUNIT_REPORT_PATH=junit_report.xml mocha --colors --reporter mocha-jenkins-reporter test/*_tests.js"
+    "test": "grunt"
   },
   "devDependencies": {
+    "eslint-plugin-mocha": "*",
     "grunt": "^1.0.1",
+    "grunt-mocha-test": "^0.13.2",
     "mocha": "^3.1.2",
-    "mocha-jenkins-reporter": "0.3.7",
+    "mocha-jenkins-reporter": "^0.3.7",
     "rimraf": "^2.5.4"
   },
   "dependencies": {
     "crypto-js": "^3.1.8",
     "grunt-appc-istanbul": "^1.0.5",
-    "grunt-appc-js": "^1.0.23"
+    "grunt-appc-js": "^2.0.0"
   }
 }

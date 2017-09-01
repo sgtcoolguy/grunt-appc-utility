@@ -1,6 +1,6 @@
 'use strict';
 
-const exec = require('child_process').exec;
+const exec = require('child_process').exec; // eslint-disable-line security/detect-child-process
 
 module.exports = function (grunt) {
 	grunt.registerTask('appc_unpublish_all', 'Unpublish all Arrow versions except for last deployed version.', function () {
