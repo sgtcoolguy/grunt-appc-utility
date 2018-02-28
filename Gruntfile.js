@@ -12,8 +12,8 @@ module.exports = function (grunt) {
 			test: {
 				options: {
 					reporter: 'mocha-jenkins-reporter',
-					'reporterOptions': {
-						'junit_report_path': 'junit_report.xml'
+					reporterOptions: {
+						junit_report_path: 'junit_report.xml'
 					}
 				},
 				src: [ 'test/*_tests.js' ]

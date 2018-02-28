@@ -1,53 +1,8 @@
-@Library('pipeline-library')
-import com.axway.AppcCLI;
+#! groovy
+library 'pipeline-library'
 
-timestamps {
-  node('(osx || linux) && git && npm-publish') {
-    def packageVersion = ''
-    stage('Checkout') {
-      checkout scm
-      def packageJSON = jsonParse(readFile('package.json'))
-      packageVersion = packageJSON['version']
-      currentBuild.displayName = "#${packageVersion}-${currentBuild.number}"
-    }
-
-    def isMaster = env.BRANCH_NAME.equals('master')
-    // By default, publish any builds not on a PR
-    def publish = isMaster
-    def tagGit = isMaster
-
-    def appc = new AppcCLI(steps)
-    appc.environment = 'preprod'
-
-    nodejs(nodeJSInstallationName: 'node 6.9.5') {
-      ansiColor('xterm') {
-
-        stage('Dependencies') {
-          appc.install()
-          sh 'npm install'
-          appc.loggedIn {
-            sh 'appc install'
-          }
-        }
-
-        stage('Build') {
-          timeout(10) {
-            appc.loggedIn {
-              sh 'npm test'
-            }
-          } // timeout
-          junit 'junit_report.xml'
-        }
-
-        stage('Publish') {
-          if (publish) {
-            sh 'npm publish'
-          }
-          if (tagGit) {
-            pushGitTag(name: packageVersion, message: "See ${env.BUILD_URL} for more information.", force: true)
-          }
-        }
-      } // ansiColor
-    } // nodejs
-  } // node
-} // timestamps
+buildNPMPackage {
+	// nodeVersion = '6.9.5'
+	// projectKey = 'CLI'
+	updateJIRATickets = false
+}
